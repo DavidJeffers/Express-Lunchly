@@ -14,14 +14,42 @@ class Customer {
     this.lastName = lastName;
     this.phone = phone;
     this.notes = notes;
-    this.fullName = `${this.firstName} ${this.lastName}`;
   }
 
-  static search(term, customers) {
-    let foundCustomers = customers.filter((customer) =>
-      customer.fullName.toLowerCase().includes(term.toLowerCase())
-    );
-    return foundCustomers;
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+    /** Search for set of customers */
+    static async search(term) {
+      const results = await db.query(
+        `SELECT id,
+            first_name AS "firstName",
+            last_name  AS "lastName",
+            phone,
+            notes
+            FROM customers
+            WHERE concat(first_name,' ' ,last_name) ILIKE $1`,
+              [`%${term}%`]);
+
+      return results.rows.map((c) => new Customer(c));
+    }
+
+
+  /** Find top-ten customers by most reservations. */
+
+  static async topTen(){
+    const results = await db.query(
+      `SELECT c.id, c.first_name AS "firstName",
+        c.last_name AS "lastName", c.phone, c.notes
+          FROM customers AS c
+            JOIN reservations AS r
+            ON c.id = r.customer_id
+          GROUP BY c.id
+          ORDER BY COUNT(c.id) DESC
+          LIMIT 10`);
+
+    return results.rows.map((c) => new Customer(c));
   }
 
   /** find all customers. */

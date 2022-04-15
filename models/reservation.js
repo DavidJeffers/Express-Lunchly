@@ -16,6 +16,13 @@ class Reservation {
     this.startAt = startAt;
     this.notes = notes;
   }
+  get notes (){
+    return this._notes
+  }
+
+  set notes(notes) {
+    return this._notes = notes || "No remarks.";
+  }
 
   /** formatter for startAt */
 
@@ -40,6 +47,8 @@ class Reservation {
     return results.rows.map((row) => new Reservation(row));
   }
 
+  /** */
+
   async save() {
     if (this.id === undefined) {
       const result = await db.query(
@@ -51,7 +60,7 @@ class Reservation {
       this.id = result.rows[0].id;
     } else {
       await db.query(
-        `UPDATE reservations 
+        `UPDATE reservations
              SET num_guests=$1,
                  start_at=$2,
                  notes=$3
