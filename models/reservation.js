@@ -1,7 +1,7 @@
 "use strict";
 
 /** Reservation for Lunchly */
-
+const { BadRequestError } = require("../expressError");
 const moment = require("moment");
 
 const db = require("../db");
@@ -16,12 +16,39 @@ class Reservation {
     this.startAt = startAt;
     this.notes = notes;
   }
-  get notes (){
-    return this._notes
+  get notes() {
+    return this._notes;
   }
 
   set notes(notes) {
-    return this._notes = notes || "No remarks.";
+    return (this._notes = notes || "No remarks.");
+  }
+
+  get numGuests() {
+    return this._numGuests;
+  }
+
+  set numGuests(numGuests) {
+    if (numGuests < 1) throw new BadRequestError("Must have at least 1 guest");
+    return (this._numGuests = numGuests);
+  }
+
+  get startAt() {
+    return this._startAt;
+  }
+
+  set startAt(start_at) {
+    return (this._startAt = new Date(start_at));
+  }
+
+  get customer_id() {
+    return this._customer_id;
+  }
+
+  set customerId(customer_id) {
+    if (this._customer_id !== customer_id) {
+      throw new BadRequestError("Cannot change ID");
+    }
   }
 
   /** formatter for startAt */
